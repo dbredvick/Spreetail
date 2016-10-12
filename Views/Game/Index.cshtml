@@ -1,0 +1,136 @@
+@model tictactoe.Models.Board
+@{
+    ViewData["Title"] = "Play";
+}
+<script type="text/javascript">
+
+var board = "";
+function testing(){
+  var num = document.getElementById("size").value;
+
+  //verify that input is numeric - if not default to 3 for size.
+  if(isNaN(parseFloat(num)) && !isFinite(num)){
+    num =3;
+  }
+  size = num;
+
+  httpGetAsync('/game/startgame/' +size, function(response){
+    obj = JSON.parse(response);
+    displayTiles(obj,size);
+  });
+
+  var tbl = document.getElementById("board-table");
+  var tbdy = document.createElement('tbody');
+  
+  for(var i = 0; i < size; i++){
+    var tr = document.createElement('tr');
+    if(i != 0 && i!= size){
+      tr.style.borderTop = "2px solid black";
+    }
+    for(var j = 0; j<size; j++){
+      var td = document.createElement('td');
+      td.innerHTML = '<button type="button" class="btn letter btn-primary" onclick="play(this.parentNode)">____</button>';
+      td.setAttribute('row',i);
+      td.setAttribute('col',j);
+      if(j != 0 && j!= size){
+        td.style.borderLeft = "2px solid black";
+      }
+      tr.appendChild(td);
+    }
+    tbdy.appendChild(tr);
+  }
+tbl.removeChild(tbl.firstChild);
+tbl.appendChild(tbdy); 
+}
+
+function play(node,size){
+  var row = node.getAttribute('row');
+  var col = node.getAttribute('col');
+  var str = JSON.stringify(board);
+  httpGetAsync('/game/play/'+str+'/'+row+'/'+col, function(response){
+    obj = JSON.parse(response);
+
+    if(obj.item1.length > 0){
+      window.alert(obj.item1);
+      window.location = "http://localhost:5000";
+    }
+    displayTiles(obj.item2,size);
+    
+  });
+
+}
+
+function httpGetAsync(theUrl, callback) //http://stackoverflow.com/questions/247483/http-get-request-in-javascript
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); 
+    xmlHttp.send(null);
+}
+
+
+
+
+function displayTiles(arr){
+  board = arr;
+  //var temp = board.split("[").join("");
+  //var arr = temp.split("],");
+  dimensions = arr.length;
+  for(var i = 0; i<dimensions; i++){
+    for(var j = 0; j<dimensions; j++){
+      var node = document.querySelector("td[row='"+i+"'][col='"+j+"']");
+      if(arr[i][j] == 1){
+        node.firstChild.innerHTML = " X ";
+      }else if(arr[i][j] == -1){
+        node.firstChild.innerHTML = " O ";
+      }else{
+        node.firstChild.innerHTML = "___";
+    }
+  }
+
+  
+  }
+}
+</script>
+
+
+<div class="jumbotron">
+  <h1>Tic-Tac-Toe</h1>
+  <p>Select a board size and play against an AI* player.</p>
+  <i style="color:grey;">*AI admitadely not very intelligent</i>
+  </br>
+  </br>
+  <div>
+
+  </div>
+  <form>
+    <div class="form-group">
+    <div class="input-group">
+      <span class="input-group-addon" id="basic-addon1">Rows</span>
+      <input type="text" class="form-control" id ="size" placeholder="" aria-describedby="basic-addon1">
+    </div>
+    </div>
+    <div class="form-group">
+    <input type="button" onclick="testing()" class="btn btn-default" aria-label="Play" value=" Play"/>
+    </input>
+    </div>
+</form>
+</div>
+
+<center><div class="board">
+  <table id="board-table">
+  </table>
+
+</div>
+</center>
+
+
+
+
+<!-- Might consider putting these in another file? -->
+<!-- We need a funciton to create the board -->
+<!-- We need a funciton to handle clicking on div-->
+<!-- We need a funciton to handle winning/loosing-->

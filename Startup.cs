@@ -44,7 +44,7 @@ namespace tictactoe
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Play/Error");
             }
 
             app.UseStaticFiles();
@@ -53,7 +53,7 @@ namespace tictactoe
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Game}/{action=Index}/{id?}");
             });
         }
     }
